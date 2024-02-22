@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargar datos de parcelas</title>
+</head>
+<body>
+    <button id="boton">Cargar sitio</button>
+    <div id="response"></div>
+    <script>
+        function ajax() {
+            const http = new XMLHttpRequest();
+           const url = 'https://www.zaragoza.es/sede/servicio/transparencia/list.solrjson';
+           // const url = ' https://www.zaragoza.es/sede/servicio/equipamiento/basic/libreria.json?srsname=utm30n_etrs89';
+           
+
+            http.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    const responseObj = JSON.parse(this.responseText);
+                    crearTabla(responseObj.result);
+                }
+            }
+            http.open("GET", url);
+            http.send();
+        }
+
+        function crearTabla(datos) {
+            const tabla = document.createElement('table');
+            tabla.setAttribute('border', '1');
+            
+            let cabecera = tabla.createTHead();
+            let filaCabecera = cabecera.insertRow();
+
+            Object.keys(datos[0]).forEach(key => {
+                let celda = filaCabecera.insertCell();
+                celda.textContent = key;
+            });
+
+            let cuerpo = tabla.createTBody();
+            datos.forEach(obj => {
+                let fila = cuerpo.insertRow();
+                Object.values(obj).forEach(texto => {
+                    let celda = fila.insertCell();
+                    celda.textContent = texto;
+                });
+            });
+
+            document.getElementById('response').innerHTML = '';
+            document.getElementById('response').appendChild(tabla);
+        }
+
+        document.getElementById("boton").addEventListener("click", function() {
+            ajax();
+        });
+    </script>
+</body>
+</html>
