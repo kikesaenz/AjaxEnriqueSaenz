@@ -43,6 +43,13 @@
     <div id="response"></div>
 
     <script>
+        var mymap = L.map('mapid').setView([41.6488, -0.8891], 13);
+
+        // Agregar capa de mapa base
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mymap);
+
         function ajax(callback) {
             const http = new XMLHttpRequest();
             const url = 'https://www.zaragoza.es/sede/servicio/urbanismo-infraestructuras/estacion-bicicleta.json';
@@ -57,45 +64,39 @@
             http.send();
         }
 
-        function crearMapa(datos) {
-    const tipoFiltro = document.getElementById('filtroTipo').value;
-    const ubicacionFiltro = document.getElementById('filtroUbicacion').value;
+        function actualizarMapa(datos) {
+            const tipoFiltro = document.getElementById('filtroTipo').value;
+            const ubicacionFiltro = document.getElementById('filtroUbicacion').value;
 
-    // Limpiar el mapa antes de agregar nuevos elementos
-    document.getElementById('mapid').innerHTML = '';
+            // Limpiar el mapa antes de agregar nuevos elementos
+            mymap.eachLayer(function(layer) {
+                if (layer instanceof L.Circle) {
+                    mymap.removeLayer(layer);
+                }
+            });
 
-    // Crear mapa
-    var mymap = L.map('mapid').setView([41.6488, -0.8891], 13);
-
-    // Agregar capa de mapa base
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(mymap);
-
-    // Filtrar y dibujar polígonos alrededor de las estaciones de bicicletas
-    datos.forEach(obj => {
-        if (obj.address.includes(ubicacionFiltro)) {
-            const coordinates = obj.geometry.coordinates;
-            if (tipoFiltro === "disponibles" && obj.bicisDisponibles > 0) {
-                L.circle([coordinates[1], coordinates[0]], {
-                    color: 'blue',
-                    fillColor: 'blue',
-                    fillOpacity: 0.5,
-                    radius: 100 // ajusta el radio del círculo según sea necesario
-                }).addTo(mymap).bindPopup(`<b>${obj.title}</b><br>${obj.address}`);
-            } else if (tipoFiltro === "noDisponibles" && obj.bicisDisponibles === 0) {
-                L.circle([coordinates[1], coordinates[0]], {
-                    color: 'red',
-                    fillColor: 'red',
-                    fillOpacity: 0.5,
-                    radius: 100 // ajusta el radio del círculo según sea necesario
-                }).addTo(mymap).bindPopup(`<b>${obj.title}</b><br>${obj.address}`);
-            }
+            // Filtrar y dibujar polígonos alrededor de las estaciones de bicicletas
+            datos.forEach(obj => {
+                if (obj.address.includes(ubicacionFiltro)) {
+                    const coordinates = obj.geometry.coordinates;
+                    if (tipoFiltro === "disponibles" && obj.bicisDisponibles > 0) {
+                        L.circle([coordinates[1], coordinates[0]], {
+                            color: 'blue',
+                            fillColor: 'blue',
+                            fillOpacity: 0.5,
+                            radius: 100 // ajusta el radio del círculo según sea necesario
+                        }).addTo(mymap).bindPopup(`<b>${obj.title}</b><br>${obj.address}`);
+                    } else if (tipoFiltro === "noDisponibles" && obj.bicisDisponibles === 0) {
+                        L.circle([coordinates[1], coordinates[0]], {
+                            color: 'red',
+                            fillColor: 'red',
+                            fillOpacity: 0.5,
+                            radius: 100 // ajusta el radio del círculo según sea necesario
+                        }).addTo(mymap).bindPopup(`<b>${obj.title}</b><br>${obj.address}`);
+                    }
+                }
+            });
         }
-    });
-}
-
-
 
         function mostrarDatos(datos) {
             const filtro = document.getElementById('filtroUbicacion').value;
@@ -132,8 +133,8 @@
             document.getElementById('response').innerHTML = '';
             document.getElementById('response').appendChild(tabla);
 
-            // Mostrar también los datos en el mapa
-            crearMapa(datos);
+            // Actualizar capas del mapa con los datos filtrados
+            actualizarMapa(bicisFiltradas);
         }
 
         document.getElementById("botonMostrarDatos").addEventListener("click", function() {
