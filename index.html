@@ -1,12 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Importar Datos</title>
 </head>
 <body>
-    <h1>Prueba</h1>
-    
+    <h1>Seleccionar Rango de Datos</h1>
+    <label for="fechaInicio">Fecha de Inicio:</label>
+    <input type="date" id="fechaInicio"><br><br>
+    <label for="fechaFin">Fecha de Fin:</label>
+    <input type="date" id="fechaFin"><br><br>
+    <button onclick="importarDatos()">Importar Datos</button>
+
+    <script>
+        function importarDatos() {
+            var fechaInicio = document.getElementById('fechaInicio').value;
+            var fechaFin = document.getElementById('fechaFin').value;
+
+            var url = "https://www.zaragoza.es/sede/servicio/transparencia/list.solrjson";
+
+            // Realizar solicitud AJAX para obtener los datos
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Procesar la respuesta
+                    var datos = JSON.parse(xhr.responseText);
+                    // Aquí puedes trabajar con los datos como desees
+                    console.log(datos); // Por ejemplo, imprimirlos en la consola del navegador
+                    alert('Datos importados exitosamente');
+                } else if (xhr.readyState == 4 && xhr.status != 200) {
+                    // Manejar errores
+                    alert('Error al importar datos');
+                }
+            };
+            xhr.send();
+        }
+    </script>
 </body>
 </html>
