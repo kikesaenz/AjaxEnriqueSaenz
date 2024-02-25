@@ -10,6 +10,9 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- Agregar Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Agregar jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
     <style>
         #mapid {
             height: 400px;
@@ -34,6 +37,18 @@
             padding: 10px;
             border-radius: 5px;
         }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -42,10 +57,12 @@
             <option value="disponibles">Bicis disponibles</option>
             <option value="noDisponibles">Bicis no disponibles</option>
         </select>
-        <select id="filtroUbicacion">
-            <!-- Las opciones se agregan dinámicamente desde JavaScript -->
+        <select id="filtroDireccion">
+            <!-- Las opciones se agregarán dinámicamente desde JavaScript -->
         </select>
         <button id="botonMostrarDatos">Mostrar Datos</button>
+        <button id="botonMostrarTodas">Mostrar Todas las Bicis Disponibles</button>
+        <button id="botonDescargarPDF">Descargar PDF</button>
     </div>
     <div id="mapid"></div>
     <div id="grafico">
@@ -79,7 +96,6 @@
 
         function actualizarMapa(datos) {
             const tipoFiltro = document.getElementById('filtroTipo').value;
-            const ubicacionFiltro = document.getElementById('filtroUbicacion').value;
 
             // Limpiar el mapa antes de agregar nuevos elementos
             mymap.eachLayer(function(layer) {
@@ -88,63 +104,73 @@
                 }
             });
 
-            // Filtrar y dibujar polígonos alrededor de las estaciones de bicicletas
+            // Dibujar polígonos alrededor de todas las estaciones de bicicletas
             datos.forEach(obj => {
-                if (obj.address.includes(ubicacionFiltro)) {
-                    const coordinates = obj.geometry.coordinates;
-                    if (tipoFiltro === "disponibles" && obj.bicisDisponibles > 0) {
-                        L.circle([coordinates[1], coordinates[0]], {
-                            color: 'blue',
-                            fillColor: 'blue',
-                            fillOpacity: 0.5,
-                            radius: 100 // ajusta el radio del círculo según sea necesario
-                        }).addTo(mymap).bindPopup(`<b>${obj.title}</b><br>${obj.address}`);
-                    } else if (tipoFiltro === "noDisponibles" && obj.bicisDisponibles === 0) {
-                        L.circle([coordinates[1], coordinates[0]], {
-                            color: 'red',
-                            fillColor: 'red',
-                            fillOpacity: 0.5,
-                            radius: 100 // ajusta el radio del círculo según sea necesario
-                        }).addTo(mymap).bindPopup(`<b>${obj.title}</b><br>${obj.address}`);
-                    }
+                const coordinates = obj.geometry.coordinates;
+                if ((tipoFiltro === "disponibles" && obj.bicisDisponibles > 0) || (tipoFiltro === "noDisponibles" && obj.bicisDisponibles === 0)) {
+                    const color = tipoFiltro === "disponibles" ? 'blue' : 'red';
+                    L.circle([coordinates[1], coordinates[0]], {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.5,
+                        radius: 100 // ajusta el radio del círculo según sea necesario
+                    }).addTo(mymap).bindPopup(`<b>${obj.title}</b><br>${obj.address}`);
                 }
             });
         }
 
         function mostrarDatos(datos) {
-            const filtro = document.getElementById('filtroUbicacion').value;
             const tipoFiltro = document.getElementById('filtroTipo').value;
-            const bicisFiltradas = datos.filter(obj => {
-                if (tipoFiltro === "disponibles") {
-                    return obj.bicisDisponibles > 0 && obj.address.includes(filtro);
-                } else if (tipoFiltro === "noDisponibles") {
-                    return obj.bicisDisponibles === 0 && obj.address.includes(filtro);
-                }
+            const direccionSeleccionada = document.getElementById('filtroDireccion').value;
+
+            let bicisFiltradas;
+            if (direccionSeleccionada === 'todos') {
+                bicisFiltradas = datos.filter(obj => tipoFiltro === "disponibles" ? obj.bicisDisponibles > 0 : obj.bicisDisponibles === 0);
+            } else {
+                bicisFiltradas = datos.filter(obj => obj.address === direccionSeleccionada && (tipoFiltro === "disponibles" ? obj.bicisDisponibles > 0 : obj.bicisDisponibles === 0));
+            }
+
+            const responseElement = document.getElementById('response');
+            responseElement.innerHTML = '';
+
+            // Crear tabla
+            const table = document.createElement('table');
+            table.classList.add('table');
+
+            // Crear cabecera de la tabla
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            // Definir nombres de columnas
+            const columnNames = ['Título', 'Dirección', 'Número de bicis disponibles', 'Estado'];
+
+            columnNames.forEach(columnName => {
+                const th = document.createElement('th');
+                th.textContent = columnName;
+                headerRow.appendChild(th);
             });
 
-            const tabla = document.createElement('table');
-            tabla.setAttribute('border', '1');
-
-            let cabecera = tabla.createTHead();
-            let filaCabecera = cabecera.insertRow();
-
-            Object.keys(bicisFiltradas[0]).forEach(key => {
-                let celda = filaCabecera.insertCell();
-                celda.textContent = key;
-            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
 
             // Crear cuerpo de la tabla
-            let cuerpo = tabla.createTBody();
+            const tbody = document.createElement('tbody');
+
             bicisFiltradas.forEach(obj => {
-                let fila = cuerpo.insertRow();
-                Object.values(obj).forEach(texto => {
-                    let celda = fila.insertCell();
-                    celda.textContent = texto;
+                const row = document.createElement('tr');
+                const values = [obj.title, obj.address, obj.bicisDisponibles, obj.estado];
+
+                values.forEach(value => {
+                    const td = document.createElement('td');
+                    td.textContent = value;
+                    row.appendChild(td);
                 });
+
+                tbody.appendChild(row);
             });
 
-            document.getElementById('response').innerHTML = '';
-            document.getElementById('response').appendChild(tabla);
+            table.appendChild(tbody);
+            responseElement.appendChild(table);
 
             // Actualizar capas del mapa con los datos filtrados
             actualizarMapa(bicisFiltradas);
@@ -188,21 +214,48 @@
             ajax(mostrarDatos);
         });
 
-        // Agregar direcciones al select
-        function agregarDirecciones(datos) {
-            const select = document.getElementById('filtroUbicacion');
+        document.getElementById("botonMostrarTodas").addEventListener("click", function() {
+            document.getElementById('filtroDireccion').value = 'todos';
+            document.getElementById('filtroTipo').value = 'disponibles';
+            ajax(mostrarDatos);
+        });
+
+        document.getElementById("botonDescargarPDF").addEventListener("click", function() {
+            const pdf = new jsPDF();
+            const canvas = document.getElementById('myChart');
+            const chartDataURL = canvas.toDataURL('image/png');
+            const mapImageURL = document.getElementsByClassName('leaflet-image-layer leaflet-zoom-animated')[0].toDataURL();
+            const tableHTML = document.getElementById('response').innerHTML;
+            
+            pdf.text("Gráfico de Bicicletas", 10, 10);
+            pdf.addImage(chartDataURL, 'PNG', 10, 20, 100, 75);
+            pdf.addPage();
+            pdf.text("Mapa de Estaciones de Bicicletas", 10, 10);
+            pdf.addImage(mapImageURL, 'PNG', 10, 20, 100, 75);
+            pdf.addPage();
+            pdf.text("Tabla de Estaciones de Bicicletas", 10, 10);
+            pdf.fromHTML(tableHTML, 10, 20);
+
+            pdf.save('datos_bicicletas.pdf');
+        });
+
+        // Llamar a la función ajax para cargar los datos y agregar direcciones al select
+        ajax(function(datos) {
+            const select = document.getElementById('filtroDireccion');
             const direcciones = datos.map(obj => obj.address);
             const direccionesUnicas = [...new Set(direcciones)];
+            const optionTodos = document.createElement('option');
+            optionTodos.textContent = 'Todos';
+            optionTodos.value = 'todos';
+            select.appendChild(optionTodos);
             direccionesUnicas.forEach(direccion => {
                 const option = document.createElement('option');
                 option.textContent = direccion;
                 option.value = direccion;
                 select.appendChild(option);
             });
-        }
 
-        // Llamar a la función ajax para cargar los datos y agregar direcciones al select
-        ajax(agregarDirecciones);
+        });
     </script>
 </body>
 </html>
