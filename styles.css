@@ -4,17 +4,48 @@ body {
     padding: 0;
     background-color: #f3f4f6;
 }
+
+.logo-container {
+    position: fixed;
+    top: 20px; /* Ajusta según sea necesario */
+    left: 20px;
+    z-index: 1000;
+    width: 50px; /* Ancho reducido */
+    height: 50px; /* Altura reducida */
+    border-radius: 50%; /* Hacer la imagen redonda */
+    overflow: hidden; /* Asegurarse de que la imagen redonda no se desborde */
+}
+
+.logo-container img {
+    width: 100%; /* Ajustar el tamaño de la imagen */
+    height: auto;
+}
+
+/* Header Styles */
 header {
-    background-color: #036;
+    background-color: #E74C3C;
     color: #fff;
-    padding: 20px 0;
+    padding: 20px;
     text-align: center;
     margin-bottom: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
 }
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
 h1 {
     margin: 0;
     font-size: 2rem;
+    display: inline-block; /* Permitir que el texto esté junto al logo */
+    vertical-align: middle; /* Alinear verticalmente el texto con el logo */
 }
+
+
+/* Container Styles */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -24,6 +55,8 @@ h1 {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
+
+/* Map Styles */
 #mapid {
     width: 100%;
     height: 50vh;
@@ -32,58 +65,72 @@ h1 {
     overflow: hidden;
     transition: height 0.5s ease;
 }
+
+/* Controls Styles */
 #controles {
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 #controles select, #controles button {
-    padding: 12px 20px;
+    padding: 10px 16px;
     font-size: 1rem;
     margin-right: 10px;
     border: none;
-    border-radius: 4px;
+    border-radius: 20px;
     cursor: pointer;
-    background-color: #036;
+    background-color: #e4301c;
     color: #fff;
     transition: background-color 0.3s;
     outline: none;
 }
+
 #controles select:hover, #controles button:hover {
-    background-color: #064579;
+    background-color: #c9220f;
 }
+
+/* Response Styles */
 #response table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
+
 #response th, #response td {
     padding: 12px 20px;
     border: 1px solid #ddd;
     text-align: center;
 }
+
 #response th {
     background-color: #f2f2f2;
 }
+
+/* Footer Styles */
 footer {
-    background-color: #036;
+    background-color: #e4301c;
     color: #fff;
     text-align: center;
     padding: 20px 0;
     position: fixed;
     bottom: 0;
     width: 100%;
-    border-radius: 8px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     display: none;
     transition: display 0.5s ease;
+    z-index: 999;
 }
+
 footer p {
     margin: 0;
 }
 
 @media print {
-    /* Estilos específicos para la impresión */
     .no-imprimir {
         display: none;
     }
@@ -92,7 +139,7 @@ footer p {
     }
 }
 
-/* Ajuste para la gráfica */
+/* Chart Styles */
 #grafico {
     width: 90%;
     margin: 0 auto;
