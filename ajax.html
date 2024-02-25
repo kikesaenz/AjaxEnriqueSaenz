@@ -1,84 +1,170 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargar datos de Bizis</title>
+    <title>Estado de las Bicicletas en Zaragoza</title>
     <!-- Agregar Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Agregar Leaflet JS -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- Agregar Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Agregar jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
     <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            margin-bottom: 60px; /* Ajuste para el espacio del footer */
+        }
+        header {
+            background-color: #036;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 36px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px; /* Ajuste para el espacio del footer */
+            overflow: hidden; /* Para evitar que el contenido desborde del contenedor */
+        }
         #mapid {
-            height: 400px;
-            width: 50%;
-            float: left;
-        }
-        #grafico {
-            height: 400px;
-            width: 50%;
-            float: left;
-        }
-        #response {
-            margin-top: 20px;
-            clear: both;
+            width: 100%;
+            height: 70vh; /* El mapa ocupará el 70% de la altura de la ventana */
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
         }
         #controles {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background-color: white;
-            padding: 10px;
-            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        table {
-            border-collapse: collapse;
+        #controles select, #controles button {
+            padding: 12px 20px;
+            font-size: 16px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #036;
+            color: #fff;
+            transition: background-color 0.3s;
+            outline: none;
+        }
+        #controles select:hover, #controles button:hover {
+            background-color: #064579;
+        }
+        #response table {
             width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        #response th, #response td {
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            text-align: center;
         }
-        th {
+        #response th {
             background-color: #f2f2f2;
+        }
+        footer {
+            background-color: #036;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            border-radius: 8px;
+            display: none; /* Inicialmente oculto */
+        }
+        footer p {
+            margin: 0;
+        }
+
+        @media print {
+            /* Estilos específicos para la impresión */
+            .no-imprimir {
+                display: none;
+            }
+            footer {
+                position: static;
+            }
+        }
+
+        /* Ajuste para la gráfica */
+        #grafico {
+            width: 90%; /* El gráfico ocupará el 90%
+            margin: 0 auto; /* Centrar el gráfico horizontalmente */
         }
     </style>
 </head>
 <body>
-    <div id="controles">
-        <select id="filtroTipo">
-            <option value="disponibles">Bicis disponibles</option>
-            <option value="noDisponibles">Bicis no disponibles</option>
-        </select>
-        <select id="filtroDireccion">
-            <!-- Las opciones se agregarán dinámicamente desde JavaScript -->
-        </select>
-        <button id="botonMostrarDatos">Mostrar Datos</button>
-        <button id="botonMostrarTodas">Mostrar Todas las Bicis Disponibles</button>
-        <button id="botonDescargarPDF">Descargar PDF</button>
+    <header>
+        <h1>Estado de las Bicicletas en Zaragoza</h1>
+    </header>
+    <div class="container">
+        <div id="controles">
+            <select id="filtroTipo">
+                <option value="disponibles">Bicis disponibles</option>
+                <option value="noDisponibles">Bicis no disponibles</option>
+            </select>
+            <select id="filtroDireccion">
+                <!-- Las opciones se agregarán dinámicamente desde JavaScript -->
+            </select>
+            <button id="botonMostrarDatos">Mostrar Datos</button>
+            <button id="botonMostrarTodas">Mostrar Todas las Bicis Disponibles</button>
+            <button id="botonImprimir" class="no-imprimir">Imprimir</button>
+        </div>
+        <div id="mapid"></div>
+        <div id="grafico">
+            <canvas id="myChart"></canvas>
+        </div>
+        <div id="response"></div>
     </div>
-    <div id="mapid"></div>
-    <div id="grafico">
-        <canvas id="myChart"></canvas>
-    </div>
-    <div id="response"></div>
+    <footer id="mainFooter">
+        <p>Ayuntamiento de Zaragoza - Todos los derechos reservados</p>
+    </footer>
 
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        var mymap = L.map('mapid').setView([41.6488, -0.8891], 13);
-
-        // Agregar capa de mapa base
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(mymap);
-
+        var mymap;
         var myChart; // Variable global para almacenar la instancia de la gráfica
+
+        function initMap() {
+            mymap = L.map('mapid').setView([41.6488, -0.8891], 13);
+
+            // Agregar capa de mapa base
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(mymap);
+        }
+
+        function resizeMap() {
+            var mapHeight = window.innerHeight - document.querySelector('header').offsetHeight - document.querySelector('.container').offsetHeight - document.querySelector('footer').offsetHeight - 60; // 60 is the total margin-bottom of header and container
+            document.getElementById('mapid').style.height = mapHeight + 'px';
+        }
+
+        window.onload = function() {
+            initMap();
+            resizeMap();
+        };
+
+        window.onresize = function() {
+            resizeMap();
+        };
 
         function ajax(callback) {
             const http = new XMLHttpRequest();
@@ -218,25 +304,10 @@
             document.getElementById('filtroDireccion').value = 'todos';
             document.getElementById('filtroTipo').value = 'disponibles';
             ajax(mostrarDatos);
-        });
+        });  
 
-        document.getElementById("botonDescargarPDF").addEventListener("click", function() {
-            const pdf = new jsPDF();
-            const canvas = document.getElementById('myChart');
-            const chartDataURL = canvas.toDataURL('image/png');
-            const mapImageURL = document.getElementsByClassName('leaflet-image-layer leaflet-zoom-animated')[0].toDataURL();
-            const tableHTML = document.getElementById('response').innerHTML;
-            
-            pdf.text("Gráfico de Bicicletas", 10, 10);
-            pdf.addImage(chartDataURL, 'PNG', 10, 20, 100, 75);
-            pdf.addPage();
-            pdf.text("Mapa de Estaciones de Bicicletas", 10, 10);
-            pdf.addImage(mapImageURL, 'PNG', 10, 20, 100, 75);
-            pdf.addPage();
-            pdf.text("Tabla de Estaciones de Bicicletas", 10, 10);
-            pdf.fromHTML(tableHTML, 10, 20);
-
-            pdf.save('datos_bicicletas.pdf');
+        document.getElementById("botonImprimir").addEventListener("click", function() {
+            window.print();
         });
 
         // Llamar a la función ajax para cargar los datos y agregar direcciones al select
@@ -255,7 +326,17 @@
                 select.appendChild(option);
             });
 
+            // Mostrar el footer cuando comience a bajar la página
+            window.addEventListener('scroll', function() {
+                const footer = document.getElementById('mainFooter');
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                    footer.style.display = 'block';
+                } else {
+                    footer.style.display = 'none';
+                }
+            });
         });
+
     </script>
 </body>
 </html>
