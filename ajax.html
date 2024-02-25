@@ -8,13 +8,22 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <!-- Agregar Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Agregar Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         #mapid {
             height: 400px;
-            width: 100%;
+            width: 50%;
+            float: left;
+        }
+        #grafico {
+            height: 400px;
+            width: 50%;
+            float: left;
         }
         #response {
             margin-top: 20px;
+            clear: both;
         }
         #controles {
             position: absolute;
@@ -34,12 +43,14 @@
             <option value="noDisponibles">Bicis no disponibles</option>
         </select>
         <select id="filtroUbicacion">
-            <option value="Avda">Avda</option>
-            <option value="C/">C/</option>
+            <!-- Las opciones se agregan dinámicamente desde JavaScript -->
         </select>
         <button id="botonMostrarDatos">Mostrar Datos</button>
     </div>
     <div id="mapid"></div>
+    <div id="grafico">
+        <canvas id="myChart"></canvas>
+    </div>
     <div id="response"></div>
 
     <script>
@@ -49,6 +60,8 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(mymap);
+
+        var myChart; // Variable global para almacenar la instancia de la gráfica
 
         function ajax(callback) {
             const http = new XMLHttpRequest();
@@ -135,11 +148,61 @@
 
             // Actualizar capas del mapa con los datos filtrados
             actualizarMapa(bicisFiltradas);
+
+            // Destruir la instancia de la gráfica si ya existe
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            // Crear datos para la gráfica
+            const labels = bicisFiltradas.map(obj => obj.title);
+            const data = bicisFiltradas.map(obj => obj.bicisDisponibles);
+            const backgroundColor = bicisFiltradas.map(obj => obj.bicisDisponibles > 0 ? 'rgba(54, 162, 235, 0.2)' : 'rgba(255, 99, 132, 0.2)');
+            const borderColor = bicisFiltradas.map(obj => obj.bicisDisponibles > 0 ? 'rgba(54, 162, 235, 1)' : 'rgba(255, 99, 132, 1)');
+
+            // Crear la gráfica de barras
+            var ctx = document.getElementById('myChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Estaciones de Bicicletas',
+                        data: data,
+                        backgroundColor: backgroundColor,
+                        borderColor: borderColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
         }
 
         document.getElementById("botonMostrarDatos").addEventListener("click", function() {
             ajax(mostrarDatos);
         });
+
+        // Agregar direcciones al select
+        function agregarDirecciones(datos) {
+            const select = document.getElementById('filtroUbicacion');
+            const direcciones = datos.map(obj => obj.address);
+            const direccionesUnicas = [...new Set(direcciones)];
+            direccionesUnicas.forEach(direccion => {
+                const option = document.createElement('option');
+                option.textContent = direccion;
+                option.value = direccion;
+                select.appendChild(option);
+            });
+        }
+
+        // Llamar a la función ajax para cargar los datos y agregar direcciones al select
+        ajax(agregarDirecciones);
     </script>
 </body>
 </html>
