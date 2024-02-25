@@ -1,0 +1,99 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f3f4f6;
+}
+header {
+    background-color: #036;
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+    margin-bottom: 20px;
+}
+h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+#mapid {
+    width: 100%;
+    height: 50vh;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: height 0.5s ease;
+}
+#controles {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#controles select, #controles button {
+    padding: 12px 20px;
+    font-size: 1rem;
+    margin-right: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #036;
+    color: #fff;
+    transition: background-color 0.3s;
+    outline: none;
+}
+#controles select:hover, #controles button:hover {
+    background-color: #064579;
+}
+#response table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+#response th, #response td {
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+#response th {
+    background-color: #f2f2f2;
+}
+footer {
+    background-color: #036;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-radius: 8px;
+    display: none;
+    transition: display 0.5s ease;
+}
+footer p {
+    margin: 0;
+}
+
+@media print {
+    /* Estilos específicos para la impresión */
+    .no-imprimir {
+        display: none;
+    }
+    footer {
+        position: static;
+    }
+}
+
+/* Ajuste para la gráfica */
+#grafico {
+    width: 90%;
+    margin: 0 auto;
+}
