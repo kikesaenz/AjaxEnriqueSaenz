@@ -4,7 +4,6 @@ var myChart; // Variable global para almacenar la instancia de la gráfica
 function initMap() {
     mymap = L.map('mapid').setView([41.6488, -0.8891], 13);
 
-    // Agregar capa de mapa base
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(mymap);
@@ -57,7 +56,7 @@ function actualizarMapa(datos) {
                 color: color,
                 fillColor: color,
                 fillOpacity: 0.5,
-                radius: 100 // ajusta el radio del círculo según sea necesario
+                radius: 100
             }).addTo(mymap).bindPopup(`<b>${obj.title}</b><br>${obj.address}`);
         }
     });
@@ -164,8 +163,24 @@ document.getElementById("botonMostrarTodas").addEventListener("click", function(
     ajax(mostrarDatos);
 });  
 
+function imprimirDatos() {
+    // Obtener el contenido HTML de la tabla
+    const tabla = document.getElementById('response').innerHTML;
+    // Crear un documento nuevo para imprimir
+    const ventanaImpresion = window.open('', '_blank');
+    // Escribir el contenido de la tabla en el documento nuevo
+    ventanaImpresion.document.write('<html><head><title>Datos de estaciones de bicicletas</title></head><body>');
+    ventanaImpresion.document.write('<h1>Datos de estaciones de bicicletas</h1>');
+    ventanaImpresion.document.write(tabla);
+    ventanaImpresion.document.write('</body></html>');
+    // Imprimir el documento
+    ventanaImpresion.print();
+    // Cerrar el documento después de imprimir
+    ventanaImpresion.close();
+}
+
 document.getElementById("botonImprimir").addEventListener("click", function() {
-    window.print();
+    imprimirDatos();
 });
 
 // Llamar a la función ajax para cargar los datos y agregar direcciones al select
@@ -193,4 +208,11 @@ ajax(function(datos) {
             footer.style.display = 'none';
         }
     });
+
+
+
+
+
+
+
 });

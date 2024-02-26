@@ -23,7 +23,7 @@ body {
 
 /* Header Styles */
 header {
-    background-color: #E74C3C;
+    background-color: #f12109;
     color: #fff;
     padding: 20px;
     text-align: center;
@@ -45,16 +45,17 @@ h1 {
 }
 
 
-/* Container Styles */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    padding-bottom: 70px; /* Ajusta según sea necesario para dejar espacio al footer */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
+
 
 /* Map Styles */
 #mapid {
@@ -81,14 +82,14 @@ h1 {
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    background-color: #e4301c;
+    background-color: #f12109;
     color: #fff;
     transition: background-color 0.3s;
     outline: none;
 }
 
 #controles select:hover, #controles button:hover {
-    background-color: #c9220f;
+    background-color: #f12109;
 }
 
 /* Response Styles */
@@ -110,7 +111,7 @@ h1 {
 
 /* Footer Styles */
 footer {
-    background-color: #e4301c;
+    background-color: #f12109;
     color: #fff;
     text-align: center;
     padding: 20px 0;
