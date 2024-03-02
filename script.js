@@ -17,6 +17,7 @@ function resizeMap() {
 window.onload = function() {
     initMap();
     resizeMap();
+
 };
 
 window.onresize = function() {
@@ -163,25 +164,7 @@ document.getElementById("botonMostrarTodas").addEventListener("click", function(
     ajax(mostrarDatos);
 });  
 
-function imprimirDatos() {
-    // Obtener el contenido HTML de la tabla
-    const tabla = document.getElementById('response').innerHTML;
-    // Crear un documento nuevo para imprimir
-    const ventanaImpresion = window.open('', '_blank');
-    // Escribir el contenido de la tabla en el documento nuevo
-    ventanaImpresion.document.write('<html><head><title>Datos de estaciones de bicicletas</title></head><body>');
-    ventanaImpresion.document.write('<h1>Datos de estaciones de bicicletas</h1>');
-    ventanaImpresion.document.write(tabla);
-    ventanaImpresion.document.write('</body></html>');
-    // Imprimir el documento
-    ventanaImpresion.print();
-    // Cerrar el documento después de imprimir
-    ventanaImpresion.close();
-}
 
-document.getElementById("botonImprimir").addEventListener("click", function() {
-    imprimirDatos();
-});
 
 // Llamar a la función ajax para cargar los datos y agregar direcciones al select
 ajax(function(datos) {
@@ -209,7 +192,32 @@ ajax(function(datos) {
         }
     });
 
+    document.getElementById("imprimir").onclick=pdf;    
+//Descargo el pdf
+function pdf() {
 
+    //cojo el elemento que quiero "dibujar" en el pdf
+    var cont = document.getElementById("response");
+    //Aplico margen, nombre del archivo, escala, calidad y formato
+    var opt = {
+        margin:1,
+        filename: 'EnriqueSaenz_AJAX.pdf',
+        image: {type: 'jpeg',guality: 0.98},
+        html2canvas: {scale:2},
+        jsPDF: {unit: 'in',format:'letter', orientation:'portrait'}
+    };
+    html2pdf().from(cont).set(opt).save();
+}
+//Si la cookie es true, marco el checkbox al iniciar la pagina
+function cookie() {
+    var cookies = document.cookie;
+    if(cookies!="") {
+        if(cookies == "true") {
+            document.getElementById("check").checked = true;
+
+        }
+    }
+}
 
 
 

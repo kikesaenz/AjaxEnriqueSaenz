@@ -8,7 +8,13 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <!-- Agregar Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Agregar estilos personalizados -->
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="jspdf.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0rc1/jspdf.min.js"></script>
+   
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="img/bizi-logo.ico">
 </head>
@@ -31,7 +37,7 @@
             </select>
             <button id="botonMostrarDatos">Mostrar Datos</button>
             <button id="botonMostrarTodas">Mostrar Todas las Bicis Disponibles</button>
-            <button id="botonImprimir" class="no-imprimir">Imprimir</button>
+            <button id="botonDescargarPDF">Descargar PDF</button>
 
         </div>
         <div id="mapid"></div>
